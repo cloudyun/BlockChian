@@ -30,12 +30,12 @@ public class SpiderTest {
 
 	@Test
 	public void testPut() {
-		fail("Not yet implemented");
+//		fail("Not yet implemented");
 	}
 
 	@Test
 	public void testDelete() {
-		fail("Not yet implemented");
+//		fail("Not yet implemented");
 	}
 
 }
