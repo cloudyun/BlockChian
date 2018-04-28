@@ -1,32 +1,40 @@
-package com.bc.service.impl;
+package com.bc.util;
 
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.stereotype.Service;
 
-import com.bc.service.IBlockChianService;
 import com.bc.vo.Block;
 
-@Service
-public class BlockChianService implements IBlockChianService {
-
-	ArrayList<Block> blockChain = new ArrayList<Block>();
-
-	public String calculateHash(Block block) {
+public class BlockUtils {
+	
+	/**
+	 * 计算区块的hash值
+	 * 
+	 * @param block
+	 *            区块
+	 * @return
+	 */
+	public static String calculateHash(Block block) {
 		String record = (block.getIndex()) + block.getTimestamp() + (block.getVac()) + block.getPrevHash();
 		MessageDigest digest = DigestUtils.getSha256Digest();
 		byte[] hash = digest.digest(StringUtils.getBytesUtf8(record));
 		return Hex.encodeHexString(hash);
-
 	}
 
-	public Block generateBlock(Block oldBlock, int vac) {
+	/**
+	 * 区块的生成
+	 * 
+	 * @param oldBlock
+	 * @param vac
+	 * @return
+	 */
+	public static Block generateBlock(Block oldBlock, int vac) {
 		Block newBlock = new Block();
 		newBlock.setIndex(oldBlock.getIndex() + 1);
 		newBlock.setTimestamp(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
@@ -34,10 +42,16 @@ public class BlockChianService implements IBlockChianService {
 		newBlock.setPrevHash(oldBlock.getHash());
 		newBlock.setHash(calculateHash(newBlock));
 		return newBlock;
-
 	}
 
-	public boolean isBlockValid(Block newBlock, Block oldBlock) {
+	/**
+	 * 校验区块的合法性（有效性）
+	 * 
+	 * @param newBlock
+	 * @param oldBlock
+	 * @return
+	 */
+	public static boolean isBlockValid(Block newBlock, Block oldBlock) {
 		if (oldBlock.getIndex() + 1 != newBlock.getIndex()) {
 			return false;
 		}
@@ -50,24 +64,16 @@ public class BlockChianService implements IBlockChianService {
 		return true;
 	}
 
-	public void replaceChain(ArrayList<Block> newBlocks) {
+	/**
+	 * 如果有别的链比你长，就用比你长的链作为区块链
+	 * 
+	 * @param newBlocks
+	 */
+	public List<Block> replaceChain(List<Block> blockChain, List<Block> newBlocks) {
 		if (newBlocks.size() > blockChain.size()) {
-			blockChain = newBlocks;
+			return newBlocks;
+		} else {
+			return blockChain;
 		}
 	}
-
-	@Override
-	public void add(Block newBlock) {
-		blockChain.add(newBlock);
-	}
-
-	@Override
-	public Block getLastBlockChian() {
-		return blockChain.get(blockChain.size() - 1);
-	}
-
-	@Override
-	public ArrayList<Block> getBlockChain() {
-		return blockChain;
-	}
-}
+} 
